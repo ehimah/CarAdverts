@@ -16,14 +16,14 @@ namespace CarAdverts.Controllers
         [HttpGet]
         public ActionResult Get()
         {
-            return NotFound();
+            return Ok();
         }
 
         // GET: api/CarAdverts/5
         [HttpGet("{id}", Name = "Get")]
         public ActionResult Get(int id, [FromQuery] CarAdvertQueryModel carAdveryQuery = null)
         {
-            return NoContent();
+            return Ok();
         }
         
         // POST: api/CarAdverts
