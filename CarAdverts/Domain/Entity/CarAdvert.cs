@@ -9,7 +9,6 @@ namespace CarAdverts.Domain.Entity
 {
     public class CarAdvert
     {
-        [Key]
         public Guid Id { get; set; }
         [Required]
         public string Title { get; set; }
