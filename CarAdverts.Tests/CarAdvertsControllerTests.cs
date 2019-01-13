@@ -1,4 +1,5 @@
 using CarAdverts.Controllers;
+using CarAdverts.Domain.Data;
 using CarAdverts.Domain.Entity;
 using CarAdverts.Domain.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -16,8 +17,9 @@ namespace CarAdverts.Tests
 
         public CarAdvertsControllerTests()
         {
+            
             var mockService = new Mock<ICarAdvertService>();
-            mockService.Setup(service => service.GetAllItemsAsync())
+            mockService.Setup(service => service.GetAllItems())
                 .Returns(GetTestCarAdverts());
            controller = new CarAdvertsController(mockService.Object);
         }
@@ -31,7 +33,7 @@ namespace CarAdverts.Tests
             var okResult = controller.Get();
 
             //Assert
-            Assert.IsType<OkObjectResult>(okResult.Result);
+            Assert.IsType<OkObjectResult>(okResult);
             
         }
 
@@ -39,13 +41,51 @@ namespace CarAdverts.Tests
         public void Get_WhenCalled_ReturensAllItems()
         {
             //Act
-            var okResult = controller.Get().Result as OkObjectResult;
+            var okResult = controller.Get() as OkObjectResult;
 
             //Assert
             var items = Assert.IsType<List<CarAdvert>>(okResult.Value);
             Assert.Equal(5, items.Count);
         }
-        private async Task<IEnumerable<CarAdvert>> GetTestCarAdverts()
+
+        //[Fact]
+        //public void GetById_UnknownGuidPassed_ReturnsNotFoundResult()
+        //{
+        //    Act
+        //   var notFoundResult = controller.Get(Guid.NewGuid());
+
+        //    Assert
+        //    Assert.IsType<NotFoundResult>(notFoundResult.Result);
+        //}
+
+        //[Fact]
+        //public void GetById_ExistingGuidPassed_ReturnsOkResult()
+        //{
+        //    Arrange
+        //   var testGuid = new Guid("ab2bd817-98cd-4cf3-a80a-53ea0cd9c200");
+
+        //    Act
+        //   var okResult = controller.Get(testGuid);
+
+        //    Assert
+        //    Assert.IsType<OkObjectResult>(okResult.Result);
+        //}
+
+        //[Fact]
+        //public void GetById_ExistingGuidPassed_ReturnsCorrectItem()
+        //{
+        //    Arrange
+        //   var testGuid = new Guid("ab2bd817-98cd-4cf3-a80a-53ea0cd9c200");
+
+        //    Act
+        //   var okResult = controller.Get(testGuid).Result as OkObjectResult;
+
+        //    Assert
+        //    Assert.IsType<CarAdvert>(okResult.Value);
+        //    Assert.Equal(testGuid, (okResult.Value as CarAdvert).Id);
+        //}
+
+        private  IEnumerable<CarAdvert> GetTestCarAdverts()
         {
             return new List<CarAdvert>()
             {
