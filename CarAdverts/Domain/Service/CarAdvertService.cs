@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CarAdverts.Domain.Data;
 using CarAdverts.Domain.Entity;
 using CarAdverts.Models;
+using CarAdverts.Utlils;
 using Microsoft.EntityFrameworkCore;
 
 namespace CarAdverts.Domain.Service
@@ -13,34 +14,55 @@ namespace CarAdverts.Domain.Service
     {
         private readonly ApplicationContext context;
 
-        public Task<CarAdvert> Add(CarAdvert carAdvert)
+        public CarAdvertService(ApplicationContext context)
         {
-            throw new NotImplementedException();
+            this.context = context;
         }
 
-        public async Task<IEnumerable<CarAdvert>> GetAllItemsAsync()
+        public CarAdvert Add(CarAdvert carAdvert)
         {
-            return await context.CarAdverts.ToListAsync();
+            if (carAdvert == null)
+                throw new ArgumentNullException(nameof(carAdvert));
+            var result = context.CarAdverts.Add(carAdvert);
+             context.SaveChanges();
+            return result.Entity;
         }
 
-        public async Task<CarAdvert> GetById(Guid id)
+        public IEnumerable<CarAdvert> GetAllItems()
         {
-            throw new NotImplementedException();
+            return context.CarAdverts.ToList();
         }
 
-        public Task<IEnumerable<CarAdvert>> GetByQuery(CarAdvertQueryModel queryModel)
+        public CarAdvert GetById(Guid id)
         {
-            throw new NotImplementedException();
+            return context.CarAdverts.Find(id);
         }
 
-        public Task Remove(Guid id)
+        public IEnumerable<CarAdvert> GetByQuery(CarAdvertQueryModel queryModel)
         {
-            throw new NotImplementedException();
+            var items = context.CarAdverts
+                .WhereIf(!string.IsNullOrWhiteSpace(queryModel.Title), ca => ca.Title.Trim().ToLowerInvariant().Contains(queryModel.Title.Trim().ToLowerInvariant()))
+                .WhereIf(queryModel.Fuel.HasValue, ca => ca.Fuel == queryModel.Fuel.Value)
+                .WhereIf(queryModel.Price.HasValue, ca => ca.Price == queryModel.Price.Value)
+                .WhereIf(queryModel.New.HasValue, ca => ca.New == queryModel.New.Value)
+                .WhereIf(queryModel.Mileage.HasValue, ca => ca.Mileage == queryModel.Mileage.Value);
+            return items;
         }
 
-        public Task Update(Guid id, CarAdvert carAdvert)
+        public  void Remove(Guid id)
         {
-            throw new NotImplementedException();
+            var carAdvertToDelete = context.CarAdverts.Find(id);
+            context.CarAdverts.Remove(carAdvertToDelete);
+            context.SaveChanges();
+        }
+
+        public void Update(CarAdvert carAdvert)
+        {
+            if (carAdvert == null)
+                throw new ArgumentNullException(nameof(carAdvert));
+            
+            context.Entry(carAdvert).State = EntityState.Modified;
+            context.SaveChanges();
         }
     }
 }

@@ -9,11 +9,11 @@ namespace CarAdverts.Domain.Service
 {
     public interface ICarAdvertService
     {
-        Task<IEnumerable<CarAdvert>> GetAllItemsAsync();
-        Task<CarAdvert> GetById(Guid id);
-        Task<IEnumerable<CarAdvert>> GetByQuery(CarAdvertQueryModel queryModel);
-        Task<CarAdvert> Add(CarAdvert carAdvert);
-        Task Update(Guid id, CarAdvert carAdvert);
-        Task Remove(Guid id);
+        IEnumerable<CarAdvert> GetAllItems();
+        CarAdvert GetById(Guid id);
+        IEnumerable<CarAdvert> GetByQuery(CarAdvertQueryModel queryModel);
+        CarAdvert Add(CarAdvert carAdvert);
+        void Update(CarAdvert carAdvert);
+        void Remove(Guid id);
     }
 }
