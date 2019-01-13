@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CarAdverts.Domain.Service;
 using CarAdverts.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +13,20 @@ namespace CarAdverts.Controllers
     [Route("api/CarAdverts")]
     public class CarAdvertsController : Controller
     {
+        private readonly ICarAdvertService carAdvertService;
+
+        public CarAdvertsController(ICarAdvertService carAdvertService)
+        {
+            this.carAdvertService = carAdvertService;
+        }
+
+
         // GET: api/CarAdverts
         [HttpGet]
-        public ActionResult Get()
+        public async Task<ActionResult> Get()
         {
-            return Ok();
+            var carAdverts = await carAdvertService.GetAllItemsAsync();
+            return Ok(carAdverts);
         }
 
         // GET: api/CarAdverts/5
