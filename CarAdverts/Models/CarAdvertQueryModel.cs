@@ -12,6 +12,6 @@ namespace CarAdverts.Models
         public int? Price { get; set; }
         public bool? New { get; set; }
         public int? Mileage { get; set; }
-        public DateTime FirstRegistration { get; set; }
+        public DateTime? FirstRegistration { get; set; }
     }
 }

@@ -77,7 +77,7 @@ namespace CarAdverts
                 new CarAdvert
                 {
                     Title = "Honda Accord 2016 for sale",
-                    Fuel = FuelType.Diesel,
+                    Fuel = FuelType.Gasoline,
                     Price = 50000,
                     New = true,
 
@@ -95,7 +95,7 @@ namespace CarAdverts
                 new CarAdvert
                 {
                     Title = "Toyota Corolla 2012 for sale",
-                    Fuel = FuelType.Diesel,
+                    Fuel = FuelType.Gasoline,
                     Price = 50000,
                     New = true,
                 },

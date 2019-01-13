@@ -40,12 +40,15 @@ namespace CarAdverts.Domain.Service
 
         public IEnumerable<CarAdvert> GetByQuery(CarAdvertQueryModel queryModel)
         {
+            if (queryModel == null)
+                return GetAllItems();
+
             var items = context.CarAdverts
                 .WhereIf(!string.IsNullOrWhiteSpace(queryModel.Title), ca => ca.Title.Trim().ToLowerInvariant().Contains(queryModel.Title.Trim().ToLowerInvariant()))
                 .WhereIf(queryModel.Fuel.HasValue, ca => ca.Fuel == queryModel.Fuel.Value)
                 .WhereIf(queryModel.Price.HasValue, ca => ca.Price == queryModel.Price.Value)
-                .WhereIf(queryModel.New.HasValue, ca => ca.New == queryModel.New.Value)
-                .WhereIf(queryModel.Mileage.HasValue, ca => ca.Mileage == queryModel.Mileage.Value);
+                .WhereIf(queryModel.New.HasValue, ca => ca.New == queryModel.New.Value);
+                
             return items;
         }
 

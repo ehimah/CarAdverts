@@ -3,9 +3,11 @@ using CarAdverts.Domain.Data;
 using CarAdverts.Domain.Entity;
 using CarAdverts.Domain.Service;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -13,22 +15,18 @@ namespace CarAdverts.Tests
 {
     public class CarAdvertsControllerTests
     {
-        CarAdvertsController controller;
 
         public CarAdvertsControllerTests()
         {
             
-            var mockService = new Mock<ICarAdvertService>();
-            mockService.Setup(service => service.GetAllItems())
-                .Returns(GetTestCarAdverts());
-           controller = new CarAdvertsController(mockService.Object);
         }
-
         
-
         [Fact]
         public  void Get_WhenCalled_ReturensOkResult()
         {
+            //arrange
+            var controller = GetSUT("ReturensOkResult");
+
             //Act
             var okResult = controller.Get();
 
@@ -40,6 +38,9 @@ namespace CarAdverts.Tests
         [Fact]
         public void Get_WhenCalled_ReturensAllItems()
         {
+            //arrange
+            var controller = GetSUT("ReturensAllItems");
+
             //Act
             var okResult = controller.Get() as OkObjectResult;
 
@@ -48,44 +49,72 @@ namespace CarAdverts.Tests
             Assert.Equal(5, items.Count);
         }
 
-        //[Fact]
-        //public void GetById_UnknownGuidPassed_ReturnsNotFoundResult()
-        //{
-        //    Act
-        //   var notFoundResult = controller.Get(Guid.NewGuid());
+        [Fact]
+        public void GetById_UnknownGuidPassed_ReturnsNotFoundResult()
+        {
+            //arrange
+            var controller = GetSUT("ReturnsNotFoundResult");
 
-        //    Assert
-        //    Assert.IsType<NotFoundResult>(notFoundResult.Result);
-        //}
+            //Act
+            var notFoundResult = controller.Get(Guid.NewGuid());
 
-        //[Fact]
-        //public void GetById_ExistingGuidPassed_ReturnsOkResult()
-        //{
-        //    Arrange
-        //   var testGuid = new Guid("ab2bd817-98cd-4cf3-a80a-53ea0cd9c200");
+            //Assert
+            Assert.IsType<NotFoundResult>(notFoundResult);
+        }
 
-        //    Act
-        //   var okResult = controller.Get(testGuid);
+        [Fact]
+        public void GetById_ExistingGuidPassed_ReturnsOkResult()
+        {
+            //Arrange
+            var controller = GetSUT("ExistingGuidPassed");
+            var result = controller.Get() as OkObjectResult;
+            var carAdverts = result.Value as List<CarAdvert>;
 
-        //    Assert
-        //    Assert.IsType<OkObjectResult>(okResult.Result);
-        //}
+            var testGuid = carAdverts.First().Id;
 
-        //[Fact]
-        //public void GetById_ExistingGuidPassed_ReturnsCorrectItem()
-        //{
-        //    Arrange
-        //   var testGuid = new Guid("ab2bd817-98cd-4cf3-a80a-53ea0cd9c200");
+           //Act
+           var okResult = controller.Get(testGuid);
 
-        //    Act
-        //   var okResult = controller.Get(testGuid).Result as OkObjectResult;
+            //Assert
+            Assert.IsType<OkObjectResult>(okResult);
+        }
 
-        //    Assert
-        //    Assert.IsType<CarAdvert>(okResult.Value);
-        //    Assert.Equal(testGuid, (okResult.Value as CarAdvert).Id);
-        //}
+        [Fact]
+        public void GetById_ExistingGuidPassed_ReturnsCorrectItem()
+        {
+            //Arrange
+            var controller = GetSUT("ExistingGuidPassed_ReturnsCorrectItem");
+            var result = controller.Get() as OkObjectResult;
+            var carAdverts = result.Value as List<CarAdvert>;
 
-        private  IEnumerable<CarAdvert> GetTestCarAdverts()
+            var testGuid = carAdverts.First().Id;
+
+            //Act
+            var okResult = controller.Get(testGuid) as OkObjectResult;
+
+
+            //Assert
+            Assert.IsType<CarAdvert>(okResult.Value);
+            Assert.Equal(testGuid, (okResult.Value as CarAdvert).Id);
+        }
+
+        private CarAdvertsController GetSUT(string databaseName)
+        {
+            var options = new DbContextOptionsBuilder<ApplicationContext>()
+               .UseInMemoryDatabase(databaseName: databaseName)
+               .Options;
+            var context = new ApplicationContext(options);
+            var service = new CarAdvertService(context);
+            var items = GetTestCarAdverts().ToList();
+
+            items.ForEach(carAdvert => service.Add(carAdvert));
+
+            context.SaveChanges();
+            var controller = new CarAdvertsController(service);
+            return controller;
+        }
+
+        private IEnumerable<CarAdvert> GetTestCarAdverts()
         {
             return new List<CarAdvert>()
             {
@@ -127,7 +156,6 @@ namespace CarAdverts.Tests
                     New = false,
                     FirstRegistration = DateTime.Now.Subtract(TimeSpan.FromDays(720)),
                     Mileage = 29000
-
                 },
                 new CarAdvert
                 {

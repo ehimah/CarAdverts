@@ -23,17 +23,20 @@ namespace CarAdverts.Controllers
 
         // GET: api/CarAdverts
         [HttpGet]
-        public ActionResult Get()
+        public ActionResult Get([FromQuery] CarAdvertQueryModel carAdveryQuery = null)
         {
-            var carAdverts = carAdvertService.GetAllItems();
+            var carAdverts = carAdvertService.GetByQuery(carAdveryQuery).ToList();
             return Ok(carAdverts);
         }
 
         // GET: api/CarAdverts/5
         [HttpGet("{id}", Name = "Get")]
-        public async Task<ActionResult> Get(Guid id, [FromQuery] CarAdvertQueryModel carAdveryQuery = null)
+        public ActionResult Get(Guid id)
         {
-            return Ok();
+            var carAdvert = carAdvertService.GetById(id);
+            if (carAdvert == null)
+                return NotFound();
+            return Ok(carAdvert);
         }
         
         // POST: api/CarAdverts
