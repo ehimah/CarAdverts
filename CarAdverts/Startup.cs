@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace CarAdverts
 {
@@ -33,6 +34,12 @@ namespace CarAdverts
             services.AddDbContext<ApplicationContext>(
                 opts => opts.UseInMemoryDatabase(databaseName: "CarAdverts"));
             //opts => opts.UseSqlServer(Configuration.GetConnectionString("CarAdverts")));
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "Car Adverts", Version = "v1" });
+            });
+
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowFromAllDomains",
@@ -55,6 +62,16 @@ namespace CarAdverts
                 // Seed the database.
                 AddSeedData(context);
             }
+
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
+            // specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Car Adverts");
+            });
             app.UseCors("AllowFromAllDomains");
             app.UseMvc();
         }
