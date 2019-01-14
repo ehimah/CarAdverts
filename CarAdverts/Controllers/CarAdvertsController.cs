@@ -47,7 +47,7 @@ namespace CarAdverts.Controllers
         
         // POST: api/CarAdverts
         [HttpPost]
-        public ActionResult Post(CarAdvertRequestModel requestModel)
+        public ActionResult Post([FromBody]CarAdvertRequestModel requestModel)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -60,7 +60,7 @@ namespace CarAdverts.Controllers
         
         // PUT: api/CarAdverts/5
         [HttpPut("{id}")]
-        public ActionResult Put(Guid id, CarAdvertRequestModel requestModel)
+        public ActionResult Put(Guid id, [FromBody] CarAdvertRequestModel requestModel)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
