@@ -7,11 +7,9 @@ using CarAdverts.Domain.Service;
 using CarAdverts.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace CarAdverts.Tests
@@ -125,11 +123,90 @@ namespace CarAdverts.Tests
         #endregion
 
         #region POST Action test
+        
+        [Fact]
+        public void POST_ValidObjectPassed_ShouldUpdateFields()
+        {
+            //Arrange
+            var controller = GetSUT("POST_ValidObjectPassed_ShouldUpdateFields");
+            var result = controller.Get() as OkObjectResult;
+            var carAdverts = result.Value as List<CarAdvertResponseModel>;
 
+            var testGuid = carAdverts.First().Id;
+
+            //Act
+            var okResult = controller.Get(testGuid);
+
+            //Assert
+            Assert.IsType<OkObjectResult>(okResult);
+        }
+        #endregion
+
+        #region PUT Action Tests
+        [Fact]
+        public void PUT_NotExistingGuidPassed_ReturnsNotFoundResponse()
+        {
+            // Arrange
+            var controller = GetSUT("PUT_NotExistingGuidPassed_ReturnsNotFoundResponse");
+            var notExistingGuid = Guid.NewGuid();
+
+            // Act
+            var badResponse = controller.Put(notExistingGuid,null);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(badResponse);
+        }
         #endregion
 
         #region DELETE Action test
+        [Fact]
+        public void DELETE_NotExistingGuidPassed_ReturnsNotFoundResponse()
+        {
+            // Arrange
+            var controller = GetSUT("Remove_NotExistingGuidPassed_ReturnsNotFoundResponse");
+            var notExistingGuid = Guid.NewGuid();
 
+            // Act
+            var badResponse = controller.Delete(notExistingGuid);
+            
+            // Assert
+            Assert.IsType<NotFoundResult>(badResponse);
+        }
+
+        [Fact]
+        public void DELETE_ExistingGuidPassed_ReturnsOkResult()
+        {
+            // Arrange
+            var controller = GetSUT("Remove_ExistingGuidPassed_ReturnsOkResult");
+            var result = controller.Get() as OkObjectResult;
+            var carAdverts = result.Value as List<CarAdvertResponseModel>;
+            var testGuid = carAdverts.First().Id;
+
+            // Act
+            var okResult = controller.Delete(testGuid);
+
+            // Assert
+            Assert.IsType<OkResult>(okResult);
+        }
+
+        [Fact]
+        public void DELETE_ExistingGuidPassed_RemovesOneItem()
+        {
+            // Arrange
+            var controller = GetSUT("Remove_ExistingGuidPassed_RemovesOneItem");
+            var result = controller.Get() as OkObjectResult;
+            var carAdverts = result.Value as List<CarAdvertResponseModel>;
+            var oldCount = carAdverts.Count;
+            var testGuid = carAdverts.First().Id;
+
+            // Act
+            var okResponse = controller.Delete(testGuid);
+
+            // Assert
+            var newReult = controller.Get() as OkObjectResult;
+            var newList = newReult.Value as List<CarAdvertResponseModel>;
+            Assert.Equal(newList.Count,oldCount);
+        }
         #endregion
 
         #region PATCH Action test
