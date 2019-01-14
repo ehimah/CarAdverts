@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using CarAdverts.Domain.Data;
 using CarAdverts.Domain.Entity;
 using CarAdverts.Domain.Service;
@@ -27,10 +28,16 @@ namespace CarAdverts
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAutoMapper();
             services.AddTransient<ICarAdvertService, CarAdvertService>();
             services.AddDbContext<ApplicationContext>(
-                opts => opts.UseInMemoryDatabase(databaseName:"CarAdverts"));
-                //opts => opts.UseSqlServer(Configuration.GetConnectionString("CarAdverts")));
+                opts => opts.UseInMemoryDatabase(databaseName: "CarAdverts"));
+            //opts => opts.UseSqlServer(Configuration.GetConnectionString("CarAdverts")));
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFromAllDomains",
+                    builder => builder.AllowAnyOrigin());
+            });
             services.AddMvc();
         }
 
@@ -48,7 +55,7 @@ namespace CarAdverts
                 // Seed the database.
                 AddSeedData(context);
             }
-            
+            app.UseCors("AllowFromAllDomains");
             app.UseMvc();
         }
 

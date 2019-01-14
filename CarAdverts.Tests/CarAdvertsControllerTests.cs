@@ -1,7 +1,10 @@
+using AutoMapper;
+using CarAdverts.Configuration;
 using CarAdverts.Controllers;
 using CarAdverts.Domain.Data;
 using CarAdverts.Domain.Entity;
 using CarAdverts.Domain.Service;
+using CarAdverts.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -20,7 +23,7 @@ namespace CarAdverts.Tests
         {
             
         }
-        
+        #region GET Action Tests
         [Fact]
         public  void Get_WhenCalled_ReturensOkResult()
         {
@@ -45,7 +48,7 @@ namespace CarAdverts.Tests
             var okResult = controller.Get() as OkObjectResult;
 
             //Assert
-            var items = Assert.IsType<List<CarAdvert>>(okResult.Value);
+            var items = Assert.IsType<List<CarAdvertResponseModel>>(okResult.Value);
             Assert.Equal(5, items.Count);
         }
 
@@ -68,7 +71,7 @@ namespace CarAdverts.Tests
             //Arrange
             var controller = GetSUT("ExistingGuidPassed");
             var result = controller.Get() as OkObjectResult;
-            var carAdverts = result.Value as List<CarAdvert>;
+            var carAdverts = result.Value as List<CarAdvertResponseModel>;
 
             var testGuid = carAdverts.First().Id;
 
@@ -85,19 +88,56 @@ namespace CarAdverts.Tests
             //Arrange
             var controller = GetSUT("ExistingGuidPassed_ReturnsCorrectItem");
             var result = controller.Get() as OkObjectResult;
-            var carAdverts = result.Value as List<CarAdvert>;
+            var carAdverts = result.Value as List<CarAdvertResponseModel>;
 
             var testGuid = carAdverts.First().Id;
 
             //Act
             var okResult = controller.Get(testGuid) as OkObjectResult;
 
-
             //Assert
-            Assert.IsType<CarAdvert>(okResult.Value);
-            Assert.Equal(testGuid, (okResult.Value as CarAdvert).Id);
+            Assert.IsType<CarAdvertResponseModel>(okResult.Value);
+            Assert.Equal(testGuid, (okResult.Value as CarAdvertResponseModel).Id);
         }
+        #endregion
 
+        #region Add ActionTests
+        [Fact]
+        public void Add_ValidObjectPassed_ReturnedResponseHasCreatedItem()
+        {
+            // Arrange
+            var validCarAdvert = new CarAdvertRequestModel()
+            {
+                Title = "ValidObjectPassed",
+                Fuel = FuelType.Diesel,
+                Price = 50000,
+                New = true,
+            };
+            var controller = GetSUT("Add_ValidObjectPassed_ReturnedResponseHasCreatedItem");
+
+            // Act
+            var createdResponse = controller.Post(validCarAdvert) as CreatedAtActionResult;
+            var createdItem = createdResponse.Value as CarAdvertRequestModel;
+            // Assert
+            Assert.IsType<CreatedAtActionResult>(createdResponse);
+            Assert.Equal("ValidObjectPassed", createdItem.Title);
+        }
+        #endregion
+
+        #region POST Action test
+
+        #endregion
+
+        #region DELETE Action test
+
+        #endregion
+
+        #region PATCH Action test
+
+        #endregion
+
+
+        #region Helpers
         private CarAdvertsController GetSUT(string databaseName)
         {
             var options = new DbContextOptionsBuilder<ApplicationContext>()
@@ -110,7 +150,11 @@ namespace CarAdverts.Tests
             items.ForEach(carAdvert => service.Add(carAdvert));
 
             context.SaveChanges();
-            var controller = new CarAdvertsController(service);
+            
+            var configuration = new MapperConfiguration(cfg => cfg.AddProfile(new CarAdvertMappingProfile()));
+            var mapper = new Mapper(configuration);
+
+            var controller = new CarAdvertsController(service,mapper);
             return controller;
         }
 
@@ -168,5 +212,7 @@ namespace CarAdverts.Tests
 
             };
         }
+
+        #endregion
     }
 }
