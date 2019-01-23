@@ -10,11 +10,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace CarAdverts.Controllers
 {
     [Produces("application/json")]
     [Route("api/CarAdverts")]
-    public class CarAdvertsController : Controller
+    public class CarAdvertsController : ControllerBase
     {
         private readonly ICarAdvertService carAdvertService;
         private readonly IMapper mapper;
